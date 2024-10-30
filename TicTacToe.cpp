@@ -27,14 +27,14 @@ void printBoard() {
         cout << "\n\t| ";
         for(int j=0; j<3; j++) {
             if(j) cout << " | ";
-            
+
             if(board[i][j] == ' ') {
                 cout << i*3 + j + 1;
             }
             else {
                 if(board[i][j] == 'X') cout << RED;
                 else cout << BLUE;
-                
+
                 cout << board[i][j] << DEFAULT;
             }
         }
@@ -47,7 +47,7 @@ void printBoard() {
 bool win(char player) {
     if(board[0][0]==player && board[1][1]==player && board[2][2]==player) return true;
     if(board[0][2]==player && board[1][1]==player && board[2][0]==player) return true;
-    
+
     for(int i=0; i<3; i++) {
         if(board[i][0]==player && board[i][1]==player && board[i][2]==player)
             return true;
@@ -56,31 +56,31 @@ bool win(char player) {
         if(board[0][j]==player && board[1][j]==player && board[2][j]==player)
             return true;
     }
-    
+
     return false;
 }
 
 // MiniMax algorithm for machine move
 int minimax(bool isMax, int currentMoves) {
     int result = 2;
-    
+
     if(currentMoves == 9) result = 0;
     if(win(machine)) result = 10;
     if(win(user)) result = -10;
-    
+
     if(result != 2) return result;
-    
+
     if(isMax) {
         int maxScore = -1000;
-        
+
         for(int i=0; i<3; i++) {
             for(int j=0; j<3; j++) {
                 if(board[i][j] == ' ') {
                     board[i][j] = machine;
-                    
+
                     int score = minimax(false, currentMoves+1);
                     board[i][j] = ' ';
-                    
+
                     maxScore = max(maxScore, score);
                 }
             }
@@ -89,15 +89,15 @@ int minimax(bool isMax, int currentMoves) {
     }
     else {
         int maxScore = 1000;
-        
+
         for(int i=0; i<3; i++) {
             for(int j=0; j<3; j++) {
                 if(board[i][j] == ' ') {
                     board[i][j] = user;
-                    
+
                     int score = minimax(true, currentMoves+1);
                     board[i][j] = ' ';
-                    
+
                     maxScore = min(maxScore, score);
                 }
             }
@@ -110,16 +110,16 @@ int minimax(bool isMax, int currentMoves) {
 void bestMove() {
     int maxScore = -1000;
     pair<int, int> pos;
-    
+
     for(int i=0; i<3; i++) {
         for(int j=0; j<3; j++) {
             if(board[i][j] == ' ') {
                 board[i][j] = machine;
-                
+
                 int score = minimax(false, moves+1);
-                
+
                 board[i][j] = ' ';
-                
+
                 if(score > maxScore) {
                     maxScore = score;
                     pos = {i, j};
@@ -132,60 +132,63 @@ void bestMove() {
 
 int main()
 {
-    int game = true;
-    
-    while(game) {
+    string game;
+
+    do {
         system("clear");
-        cout << "\nWould you like to play as " << RED << " 'X' " << DEFAULT << "or" << BLUE << " 'O' " << DEFAULT << "? Enter your choice: ";
-        cin >> user;
-        user = toupper(user);
-        system("clear");
+        string strUser;
         
-        while(user != 'X' && user != 'O') {
+        cout << "\nWould you like to play as " << RED << " 'X' " << DEFAULT << "or" << BLUE << " 'O' " << DEFAULT << "? Enter your choice: ";
+        getline(cin, strUser);
+        strUser[0] = toupper(strUser[0]);
+        system("clear");
+
+        while(strUser.size()>1 || (strUser != "X" && strUser != "O")) {
             cout << "\nInvalid choice! Please enter" << RED << " 'X' " << DEFAULT << "or" << BLUE << " 'O' " << DEFAULT << "to select your symbol: ";
-            cin >> user;
-            user = toupper(user);
+            getline(cin, strUser);
+            strUser[0] = toupper(strUser[0]);
             system("clear");
         }
-        
+        user = strUser[0];
+
         machine = (user == 'X') ? 'O' : 'X';
-        
+
         char player = 'O';
-        int pos;
+        string pos;
         moves = 0;
         boardInitial();
-        
+
         while(moves<9 && !win(player)) {
             player = (player == 'X') ? 'O' : 'X';
             cout << "\n --------------------------\n";
             printBoard();
             cout << " --------------------------\n\n";
-            
+
             if(player == user) {
                 cout << "Your turn! Choose the position (1-9): ";
-                cin >> pos;
-                int i = (pos-1)/3, j = (pos-1)%3;
-                
-                while(pos < 1 || pos > 9 || board[i][j] != ' ') {
+                getline(cin, pos);
+                int i = (pos[0]-48-1)/3, j = (pos[0]-48-1)%3;
+
+                while(pos.size() > 1 || pos[0] < '1' || pos[0] > '9' || board[i][j] != ' ') {
                     system("clear");
                     cout << "\n --------------------------\n";
                     printBoard();
                     cout << " --------------------------\n\n";
-                    
+
                     cout << "Invalid position! Please enter a number between 1 and 9, and an empty spot: ";
-                    cin >> pos;
-                    i = (pos-1)/3, j = (pos-1)%3;
+                    getline(cin, pos);
+                    i = (pos[0]-48-1)/3, j = (pos[0]-48-1)%3;
                 }
-                
+
                 moves++;
-                
+
                 board[i][j] = player;
             }
             else {
                 bestMove();
                 moves++;
             }
-            
+
             system("clear");
         }
         cout << "\n --------------------------\n";
@@ -200,13 +203,13 @@ int main()
         }
         cout << "\n\nWould you like to play again? Enter " << GREEN << "1" << DEFAULT << " for Yes or " << RED << "0" << DEFAULT << " for No: ";
         cin >> game;
-        
-        while(game != 0 && game != 1) {
+
+        while(game != "0" && game != "1") {
             system("clear");
             cout << "\nInvalid response! Please enter " << GREEN << "1" << DEFAULT << " for Yes or " << RED << "0" << DEFAULT << " for No: ";
             cin >> game;
         }
-    }
+    } while(game == "1");
 
     return 0;
 }
